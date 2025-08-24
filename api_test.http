@@ -1,0 +1,240 @@
+### Employee Management API Testing
+### Base URL
+@baseUrl = http://localhost:8080/api/v1
+@token = 
+
+### Health Check
+GET http://localhost:8080/health
+
+### ========================================
+### AUTHENTICATION ENDPOINTS
+### ========================================
+
+### Register new user
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{  
+  "username": "testuser",
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+### Login with default admin user
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "admin123"
+}
+
+### Login with test user
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "testuser",
+  "password": "password123"
+}
+
+### Get user profile (requires token)
+GET {{baseUrl}}/auth/profile
+Authorization: Bearer {{token}}
+
+### ========================================
+### EMPLOYEE ENDPOINTS
+### ========================================
+
+### Create new employee
+POST {{baseUrl}}/employees/
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "nip": "EMP001",
+  "name": "John Doe",
+  "email": "john.doe@company.com",
+  "phone": "+62812345678",
+  "position": "Software Engineer",
+  "department": "IT",
+  "salary": 15000000,
+  "hire_date": "2024-01-15"
+}
+
+### Create another employee
+POST {{baseUrl}}/employees/
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "nip": "EMP002",
+  "name": "Jane Smith",
+  "email": "jane.smith@company.com",
+  "phone": "+62812345679",
+  "position": "Product Manager",
+  "department": "Product",
+  "salary": 18000000,
+  "hire_date": "2024-02-01"
+}
+
+### Create employee without optional fields
+POST {{baseUrl}}/employees/
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "nip": "EMP003",
+  "name": "Bob Wilson",
+  "email": "bob.wilson@company.com",
+  "position": "Intern",
+  "department": "HR",
+  "hire_date": "2024-03-01"
+}
+
+### Get all employees (with pagination)
+GET {{baseUrl}}/employees/?limit=10&offset=0
+Authorization: Bearer {{token}}
+
+### Get employees with filters
+GET {{baseUrl}}/employees/?department=IT&limit=5
+Authorization: Bearer {{token}}
+
+### Search employees
+GET {{baseUrl}}/employees/?search=John&limit=10
+Authorization: Bearer {{token}}
+
+### Get employees by position
+GET {{baseUrl}}/employees/?position=Software Engineer
+Authorization: Bearer {{token}}
+
+### Get active employees only
+GET {{baseUrl}}/employees/?is_active=true
+Authorization: Bearer {{token}}
+
+### Get specific employee by ID
+GET {{baseUrl}}/employees/1
+Authorization: Bearer {{token}}
+
+### Update employee
+PUT {{baseUrl}}/employees/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "John Doe Updated",
+  "position": "Senior Software Engineer",
+  "salary": 20000000
+}
+
+### Update employee status
+PUT {{baseUrl}}/employees/2
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "is_active": false
+}
+
+### Partial update employee
+PUT {{baseUrl}}/employees/3
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "phone": "+62812345680",
+  "department": "IT"
+}
+
+### Delete employee (soft delete)
+DELETE {{baseUrl}}/employees/1
+Authorization: Bearer {{token}}
+
+### ========================================
+### ERROR TESTING
+### ========================================
+
+### Try to access protected endpoint without token
+GET {{baseUrl}}/employees/
+
+### Try to access with invalid token
+GET {{baseUrl}}/employees/
+Authorization: Bearer invalid_token_here
+
+### Try to create employee with duplicate NIP
+POST {{baseUrl}}/employees/
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "nip": "EMP002",
+  "name": "Duplicate NIP Test",
+  "email": "duplicate@company.com",
+  "position": "Test Position",
+  "department": "Test",
+  "hire_date": "2024-01-01"
+}
+
+### Try to create employee with duplicate email
+POST {{baseUrl}}/employees/
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "nip": "EMP999",
+  "name": "Duplicate Email Test",
+  "email": "jane.smith@company.com",
+  "position": "Test Position",
+  "department": "Test",
+  "hire_date": "2024-01-01"
+}
+
+### Try to get non-existent employee
+GET {{baseUrl}}/employees/999
+Authorization: Bearer {{token}}
+
+### Try to update non-existent employee
+PUT {{baseUrl}}/employees/999
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Non-existent Employee"
+}
+
+### Try to delete non-existent employee
+DELETE {{baseUrl}}/employees/999
+Authorization: Bearer {{token}}
+
+### Try to create employee with invalid data
+POST {{baseUrl}}/employees/
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "nip": "",
+  "name": "",
+  "email": "invalid-email",
+  "position": "",
+  "department": "",
+  "hire_date": "invalid-date"
+}
+
+### Try to register with existing username
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "email": "admin2@example.com",
+  "password": "password123"
+}
+
+### Try to login with wrong credentials
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "wrongpassword"
+}
